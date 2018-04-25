@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, HPacker, VPacker
 import numpy as np
@@ -150,7 +152,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	plt.legend()
 	plt.show()
 	
-def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command) :	
+def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command,output) :	
 	fig = plt.figure(1,figsize= (18,10))
 	fig.suptitle(command, fontsize = 11, fontweight='bold')
 	
@@ -246,6 +248,6 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		for i in range (0,Interdistance_maxValue + 1) :
 			plt.axvline(x = i, linewidth=0.1)
 	plt.subplots_adjust(top=0.85)
-	plt.show()
+	fig.savefig(output)
 
 

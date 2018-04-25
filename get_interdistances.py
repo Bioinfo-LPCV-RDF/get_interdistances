@@ -34,15 +34,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--factor", "-fac", type = str, default= "ARF2")
 parser.add_argument("--positive", "-pos", type = str)
 parser.add_argument("--negative_sets", "-neg", nargs='*')
-parser.add_argument("--pseudoCount", "-pc",type = float, default = 0.001)
+parser.add_argument("--matrix_type", "-mt", type=str, default="freq")
 parser.add_argument("--threshold", "-th",nargs='+',type = int, default= [-8, -9, -10])
 parser.add_argument("--Interdistance_maxValue", "-maxInter", type = int, default= 20)
-parser.add_argument("--sequence_number", "-sequence_number", type = int, default= 11654)
 parser.add_argument("--histo", "-histo", type = bool, default= False)
 parser.add_argument("--points", "-points", type = bool, default= True)
 parser.add_argument("--curve", "-curve", type = bool, default= False)
 parser.add_argument("--sum_threshold", "-sum_threshold", type = bool, default= False)
 parser.add_argument("--matrix", "-mat")
+parser.add_argument("--pseudoCount", "-pc",type = float, default = 0.0)
+parser.add_argument("--dependancies", "-d", type=str, default="")
+parser.add_argument("--output", "-o", type=str, default="./")
+parser.add_argument("--name", "-n", type=str, default="figure.svg")
 
 args = parser.parse_args()
 
@@ -52,15 +55,20 @@ args = parser.parse_args()
 #python get_interdistances.py -fac "ARF2" -pc 0.001 -maxInter 30 -sequence_number 26659 -th -6 -7 -8 -9 -10 -11 -points True -neg ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_1.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_2.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_3.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_4.fas
 factorTranscription = args.factor
 negative_sets = args.negative_sets
-pseudoCount = args.pseudoCount
 threshold = args.threshold
 Interdistance_maxValue = args.Interdistance_maxValue 
-sequence_number = args.sequence_number
 histo = args.histo
 points = args.points
 sum_threshold = args.sum_threshold
 positive=args.positive
 matrixArg=args.matrix
+matrixType=args.matrix_type
+pseudoCount = args.pseudoCount
+dependencyFile = args.dependancies
+figure_name = args.name
+output_directory = args.output
+output= output_directory + figure_name
+
 
 
 if histo == True and len(threshold) > 1 : 
@@ -69,23 +77,6 @@ if histo == True and len(threshold) > 1 :
 	
 ###################Parameters we can change#################
 
-if factorTranscription == "ARF2" :
-	FastaFile = "../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2.fas" 
-	MatrixFile = "../../data/ARF2_TGTC.pfm" 
-	matrixType = "freq" 
-	dependencyFile = ""
-	
-if factorTranscription == "ARF5" :
-	FastaFile = "../../sequences/ARF5_bound_sequences.fas" 
-	MatrixFile = "../../matrices/ARF5_OMalley_matrixC.txt" 
-	matrixType = "freq" 
-	dependencyFile = ""
-	
-if factorTranscription == "LFY_matrix_19nucl" :
-	FastaFile = "../sequences/LFY_bound_sequences.fas"
-	MatrixFile = "../matrix/LFY_scores_matrix_19nucl.txt" 
-	dependencyFile = "../matrix/interdependent_bases_matrix_for_LFY.txt"
-	matrixType = "score" 
 
 ########################################### About the main matrix #######################
 
@@ -247,4 +238,4 @@ if histo == False and points == False and negative_sets :
 	negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command)
 	
 if points == True and negative_sets :
-	negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command)
+	negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command,output)
