@@ -110,12 +110,12 @@ def interdistance_calcul(InterDR,InterER,InterIR,sum_threshold,good_score_positi
 		for second in range(first+1,len(good_score_positions)) :
     			        secondSubSeq = good_score_positions[second]
 
-			'''
-			Here we do different substractions according to we get a Direct Repeat (DR), an Inverted Repeat (IR) or an Everted Repeat (ER).
-			Because In the litterature, The interdistance calculation was made between subsequences from our matrix
-			and not between the whole sequences from our matrix.
-			So according to your specific interdistance calculations you can change these lines.
-			'''
+				'''
+				Here we do different substractions according to we get a Direct Repeat (DR), an Inverted Repeat (IR) or an Everted Repeat (ER).
+				Because In the litterature, The interdistance calculation was made between subsequences from our matrix
+				and not between the whole sequences from our matrix.
+				So according to your specific interdistance calculations you can change these lines.
+				'''
 
 				if sum_threshold == True :
 					if int(firstSubSeq[2]) + int(secondSubSeq[2]) > sum_thresold :
