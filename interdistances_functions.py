@@ -103,12 +103,12 @@ def add_scores_associated_with_interdependent_positions(dependency_matrix,scoreS
 	scoreStrandNeg = scoreStrandNeg + dependency_matrix[1][codigo[Csite1]] + dependency_matrix[3][codigo[Csite2]] + dependency_matrix[5][codigo[Csite3]]
 	return(scoreStrandPos, scoreStrandNeg)
 
-def interdistance_calcul(InterDR,InterER,InterIR,sum_threshold,good_score_positions,factorTranscription,lenMotif,Interdistance_maxValue) :
+def interdistance_calcul(InterDR,InterER,InterIR,sum_threshold,good_score_positions,offset_left,offset_right,lenMotif,Interdistance_maxValue) :
 	for first in range(0,len(good_score_positions)-1) :
 		firstSubSeq = good_score_positions[first]
 			
 		for second in range(first+1,len(good_score_positions)) :
-			secondSubSeq = good_score_positions[second]
+    			        secondSubSeq = good_score_positions[second]
 
 			'''
 			Here we do different substractions according to we get a Direct Repeat (DR), an Inverted Repeat (IR) or an Everted Repeat (ER).
@@ -116,83 +116,46 @@ def interdistance_calcul(InterDR,InterER,InterIR,sum_threshold,good_score_positi
 			and not between the whole sequences from our matrix.
 			So according to your specific interdistance calculations you can change these lines.
 			'''
-			
-			if factorTranscription == "ARF2" :
-				if sum_threshold == True:
-					if int(firstSubSeq[2]) + int(secondSubSeq[2]) > sum_thresold :
-						if firstSubSeq[1] == secondSubSeq[1] :
-							d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2)
-							if Interdistance_maxValue >= d >= 0 :
-								InterDR[d] += 1
-						if firstSubSeq[1] == ">" and secondSubSeq[1] == "<" :
-							d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2 )
-							if Interdistance_maxValue >= d >= 0 :
-								InterER[d] += 1
-						if firstSubSeq[1] == "<" and secondSubSeq[1] == ">" :
-							d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2 )
-							if Interdistance_maxValue >= d >= 0 :
-								InterIR[d] += 1
-				else:
-					if firstSubSeq[1] == secondSubSeq[1] :
-						d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2)
-						if Interdistance_maxValue >= d >= 0 :
-							InterDR[d] += 1
-					if firstSubSeq[1] == ">" and secondSubSeq[1] == "<" :
-						d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2 )
-						if Interdistance_maxValue >= d >= 0 :
-							InterER[d] += 1
-					if firstSubSeq[1] == "<" and secondSubSeq[1] == ">" :
-						d = ( int(secondSubSeq[0]) +2 ) -( int(firstSubSeq[0]) + lenMotif -2 )
-						if Interdistance_maxValue >= d >= 0 :
-							InterIR[d] += 1
 
-			if factorTranscription == "ARF5" :
 				if sum_threshold == True :
 					if int(firstSubSeq[2]) + int(secondSubSeq[2]) > sum_thresold :
 						if firstSubSeq[1] == ">" and secondSubSeq[1] == ">" :
-							d = ( int(secondSubSeq[0]) +3 ) -( int(firstSubSeq[0]) + lenMotif -1 )
+							d = ( int(secondSubSeq[0]) +offset_left ) -( int(firstSubSeq[0]) + lenMotif -offset_right )
 							if Interdistance_maxValue >= d >= 0 :
 								InterDR[d] += 1
 						if firstSubSeq[1] == "<" and secondSubSeq[1] == "<" :
-							d = ( int(secondSubSeq[0]) +1 ) -( int(firstSubSeq[0]) + lenMotif -3)
+							d = ( int(secondSubSeq[0]) +offset_right ) -( int(firstSubSeq[0]) + lenMotif -offset_left)
 							if Interdistance_maxValue >= d >= 0 :
 								InterDR[d] += 1
 						if firstSubSeq[1] == ">" and secondSubSeq[1] == "<" :
-							d = ( int(secondSubSeq[0]) +1 ) -( int(firstSubSeq[0]) + lenMotif -1 )
+							d = ( int(secondSubSeq[0]) +offset_right ) -( int(firstSubSeq[0]) + lenMotif -offset_right )
 							if Interdistance_maxValue >= d >= 0 :
 								InterER[d] += 1
 						if firstSubSeq[1] == "<" and secondSubSeq[1] == ">" :
-							d = ( int(secondSubSeq[0]) +3 ) -( int(firstSubSeq[0]) + lenMotif -3 )
+							d = ( int(secondSubSeq[0]) +offset_left ) -( int(firstSubSeq[0]) + lenMotif -offset_left )
 							if Interdistance_maxValue >= d >= 0 :
 								InterIR[d] += 1
 				else :
 					if firstSubSeq[1] == ">" and secondSubSeq[1] == ">" :
-						d = ( int(secondSubSeq[0]) +3 ) -( int(firstSubSeq[0]) + lenMotif -1 )
+						d = ( int(secondSubSeq[0]) +offset_left ) -( int(firstSubSeq[0]) + lenMotif -offset_right )
 						if Interdistance_maxValue >= d >= 0 :
 							InterDR[d] += 1
 					if firstSubSeq[1] == "<" and secondSubSeq[1] == "<" :
-						d = ( int(secondSubSeq[0]) +1 ) -( int(firstSubSeq[0]) + lenMotif -3)
+						d = ( int(secondSubSeq[0]) +offset_right ) -( int(firstSubSeq[0]) + lenMotif -offset_left)
 						if Interdistance_maxValue >= d >= 0 :
 							InterDR[d] += 1
 					if firstSubSeq[1] == ">" and secondSubSeq[1] == "<" :
-						d = ( int(secondSubSeq[0]) +1 ) -( int(firstSubSeq[0]) + lenMotif -1 )
+						d = ( int(secondSubSeq[0]) +offset_right ) -( int(firstSubSeq[0]) + lenMotif -offset_right )
 						if Interdistance_maxValue >= d >= 0 :
 							InterER[d] += 1
 					if firstSubSeq[1] == "<" and secondSubSeq[1] == ">" :
-						d = ( int(secondSubSeq[0]) +3 ) -( int(firstSubSeq[0]) + lenMotif -3 )
+						d = ( int(secondSubSeq[0]) +offset_left ) -( int(firstSubSeq[0]) + lenMotif -offset_left )
 						if Interdistance_maxValue >= d >= 0 :
 							InterIR[d] += 1
 							
-			if factorTranscription == "LFY_matrix_19nucl" :
-				d = int(secondSubSeq[0]) - (int(firstSubSeq[0])+ lenMotif)
-				if Interdistance_maxValue >= d >= 0 :
-					InterDR[d] += 1
-					InterER[d] += 1
-					InterIR[d] += 1
-		
 	return(InterDR,InterER,InterIR)
 	
-def get_interdist(matF, matRev, FastaFile, threshold, factorTranscription, Interdistance_maxValue, sum_threshold, lenMotif, dependencyFile, sequence_number):
+def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, Interdistance_maxValue, sum_threshold, lenMotif, dependencyFile, sequence_number):
 	# This line allows to retrieve all the sequences from the fasta file
 	sequences = SeqIO.to_dict(SeqIO.parse(FastaFile, "fasta"))
 
@@ -268,18 +231,18 @@ def get_interdist(matF, matRev, FastaFile, threshold, factorTranscription, Inter
 						if scoreStrandPos > b:
 							score_occurence = score_occurence + 1
 							a.append([c+1,">",scoreStrandPos])
-						if factorTranscription != "LFY_matrix_19nucl" :
-							if scoreStrandNeg > b:
-								score_occurence = score_occurence + 1
-								a.append([c+1,"<",scoreStrandNeg])
+						# if factorTranscription != "LFY_matrix_19nucl" :
+						# 	if scoreStrandNeg > b:
+						# 		score_occurence = score_occurence + 1
+						# 		a.append([c+1,"<",scoreStrandNeg])
 				
 		# Once we have stored all the positions, we calculate all the interdistances:
 		if sum_threshold == True :
 			for interDIR, interEVER, interINVER,sum_threshold in zip(DR,ER,IR,threshold) :
-				interdistance_calcul(interDIR,interEVER,interINVER,sum_thresold,good_score_positions,factorTranscription,lenMotif,Interdistance_maxValue)
+				interdistance_calcul(interDIR,interEVER,interINVER,sum_thresold,good_score_positions,offset_left,offset_right,lenMotif,Interdistance_maxValue)
 		else :
 			for goodScores, interDIR, interEVER, interINVER in zip(good_score_positions,DR,ER,IR) :
-				InterDR,InterER,InterIR = interdistance_calcul(interDIR,interEVER,interINVER,threshold,goodScores,factorTranscription,lenMotif,Interdistance_maxValue)
+				InterDR,InterER,InterIR = interdistance_calcul(interDIR,interEVER,interINVER,threshold,goodScores,offset_left,offset_right,lenMotif,Interdistance_maxValue)
 		if sequence_number :
 			nb = nb + 1
 		if nb == sequence_number : 

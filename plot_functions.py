@@ -14,7 +14,7 @@ def divide(a, b):
     else: 
         return a/b
 
-def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command) :
+def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command) :
 	fig = plt.figure(1,figsize= (18,10))
 	indexes1 = range(Interdistance_maxValue + 1)
 	width = 1
@@ -27,7 +27,7 @@ def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 	ax1.set_ylabel('$\sum DR$n_+, ER$n_+, IR$n_+ / $\sum DR$n_-, ER$n_-, IR$n_- , respectively', color = 'green', size = 16)
 	for a,b in zip(relative_DR,relative_DR_neg) :
 		ax1 = fig.add_subplot(1,4,2)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" direct repeats", size = 16)
+		ax1.set_xlabel("base pairs between direct repeats", size = 16)
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		ax1.bar(indexes1, map(divide, a, b) , width , color = 'cornflowerblue')
@@ -55,7 +55,7 @@ def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		
 	for a, b,c in zip(relative_ER,relative_ER_neg,threshold)  :	
 		ax1 = fig.add_subplot(1,4,3)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" everted repeats", size = 16)
+		ax1.set_xlabel("base pairs between everted repeats", size = 16)
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		ax1.bar(indexes1, map(divide, a, b) , width , color = 'cornflowerblue')
@@ -82,7 +82,7 @@ def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		ax2.legend()
 	for a,b in zip(relative_IR,relative_IR_neg) :	
 		ax1 = fig.add_subplot(1,4,4)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" inverted repeats", size = 16)
+		ax1.set_xlabel("base pairs between inverted repeats", size = 16)
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		ax1.bar(indexes1, map(divide, a, b) , width , color = 'cornflowerblue')
@@ -109,7 +109,7 @@ def negative_sets_histo (Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 	
 	plt.show()
 		
-def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command) :
+def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command) :
 	fig = plt.figure(1,figsize= (18,10))
 	indexes1 = range(Interdistance_maxValue + 1)
 	width = 1
@@ -124,7 +124,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	for a,b in zip(relative_DR,relative_DR_neg) :
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1 = fig.add_subplot(1,4,2)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" direct repeats", size = 16)
+		ax1.set_xlabel("base pairs between direct repeats", size = 16)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		plt.plot(indexes1, map(divide, a, b), lw=2,label=r"")
 		ax1.set_ylabel("DR$n_+ frequence / DR$n_- frequence", size = 16)
@@ -133,7 +133,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	for a, b,c in zip(relative_ER,relative_ER_neg,threshold)  :	
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1 = fig.add_subplot(1,4,3)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" everted repeats", size = 16)
+		ax1.set_xlabel("base pairs between everted repeats", size = 16)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		plt.plot(indexes1, map(divide, a, b), lw=2, label= r"threshold : "+str(c))
 		ax1.set_ylabel("$ERn_+$ frequence / $ERn_-$ frequence", size = 16)
@@ -143,7 +143,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	for a,b in zip(relative_IR,relative_IR_neg) :
 		indexes1 = range(Interdistance_maxValue + 1)
 		ax1 = fig.add_subplot(1,4,4)
-		ax1.set_xlabel("base pairs between "+factorTranscription+" inverted repeats", size = 16)
+		ax1.set_xlabel("base pairs between inverted repeats", size = 16)
 		ax1.axis([0, Interdistance_maxValue + 1, 0, 5.5])
 		plt.plot(indexes1, map(divide, a, b), lw=2,label=r"")
 		ax1.set_ylabel("$IRn_+$ frequence / $IRn_-$ frequence", size = 16)
@@ -152,7 +152,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	plt.legend()
 	plt.show()
 	
-def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,factorTranscription,threshold,rate,command,output) :	
+def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output) :	
 	fig = plt.figure(1,figsize= (18,10))
 	fig.suptitle(command, fontsize = 11, fontweight='bold')
 	
