@@ -99,7 +99,7 @@ def add_scores_associated_with_interdependent_positions(dependency_matrix,scoreS
 		site3 = site3 + strandPos[i-1]
 		Csite3 = Csite3 + cStrand[i-1]
 	#print("dependency_matrix[1][0] : ",dependency_matrix[1][0])
-	scoreStrandPos = scoreStrandPos + dependency_matrix[1][codigo[site1]] + dependency_matrix[3][codigo[site2]] + dependency_matrix[5][codigo[site3]]
+	scoreStrandPos = scoreStrandPos + dependency_matrix[1][codigo[site1]] + dependency_matrix[3][codigo[site2]] + dependency_matrix[5][codigo[site3]] 
 	scoreStrandNeg = scoreStrandNeg + dependency_matrix[1][codigo[Csite1]] + dependency_matrix[3][codigo[Csite2]] + dependency_matrix[5][codigo[Csite3]]
 	return(scoreStrandPos, scoreStrandNeg)
 
@@ -231,10 +231,9 @@ def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, 
 						if scoreStrandPos > b:
 							score_occurence = score_occurence + 1
 							a.append([c+1,">",scoreStrandPos])
-						# if factorTranscription != "LFY_matrix_19nucl" :
-						# 	if scoreStrandNeg > b:
-						# 		score_occurence = score_occurence + 1
-						# 		a.append([c+1,"<",scoreStrandNeg])
+						if scoreStrandNeg > b:
+							score_occurence = score_occurence + 1
+							a.append([c+1,"<",scoreStrandNeg])
 				
 		# Once we have stored all the positions, we calculate all the interdistances:
 		if sum_threshold == True :
