@@ -28,7 +28,7 @@ import argparse
 import logging
 from optparse import OptionParser
 from scipy import stats
-
+import pickle
 parser = argparse.ArgumentParser()                                               
 
 
@@ -41,6 +41,8 @@ parser.add_argument("--histo", "-histo", type = bool, default= False)
 parser.add_argument("--points", "-points", type = bool, default= True)
 parser.add_argument("--curve", "-curve", type = bool, default= False)
 parser.add_argument("--sum_threshold", "-sum_threshold", type = bool, default= False)
+parser.add_argument("--save", "-save",action='store_true', default= False)
+parser.add_argument("--load", "-load",action='store_true', default= False)
 parser.add_argument("--matrix", "-mat")
 parser.add_argument("--pseudoCount", "-pc",type = float, default = 0.0)
 parser.add_argument("--dependancies", "-d", type=str, default="")
@@ -55,6 +57,8 @@ args = parser.parse_args()
 #python get_interdistances.py -fac "ARF5" -pc 0.001 -maxInter 20 -sequence_number 26659 -th -9 -10 -11 -12 -13 -neg ../sequences/ARF5_neg1.fas ../sequences/ARF5_neg2.fas -points True
 #python get_interdistances.py -fac "ARF2" -pc 0.001 -maxInter 30 -sequence_number 26659 -th -6 -7 -8 -9 -10 -11 -points True -neg ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_1.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_2.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_3.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_4.fas
 negative_sets = args.negative_sets
+save = args.save
+load = args.load
 threshold = args.threshold
 Interdistance_maxValue = args.Interdistance_maxValue 
 histo = args.histo
@@ -77,9 +81,6 @@ if histo == True and len(threshold) > 1 :
 	print("Impossible to display an histogram with several thresholds, you have to change a parameter.")
 	sys.exit(0)
 	
-###################Parameters we can change#################
-
-
 ########################################### About the main matrix #######################
 
 ''' The sens of the matrix is important: The positions are on the vertical sens and the bases are on the horizontal sens as described in the example.
@@ -90,7 +91,77 @@ separation between numbers can be spaces, tabulation, comas...
                                                                   position 2:           0.645; 0.654    0.155 |||||| 0.4444
                                                                                         ...
                                                                         '''
+################################# If load == True  #################################
+
+if load:	
+	with open(positive,'rb') as f1:
+		pos_pickler=pickle.Unpickler(f1)
+		scores_pos=pos_pickler.load()
+		InterDR = scores_pos['DR']
+		InterER = scores_pos['ER']
+		InterIR = scores_pos['IR']
+		threshold_pos = scores_pos['threshold']
+		maxInter_pos = scores_pos['maxInter']
+		len_pos = scores_pos['len_pos']
+	with open(negative_sets[0],'rb') as f1:
+		neg_pickler=pickle.Unpickler(f1)
+		scores_neg=neg_pickler.load()
+		InterDR_N = scores_neg['DR_N']
+		InterER_N = scores_neg['ER_N']
+		InterIR_N = scores_neg['IR_N']
+		threshold_neg = scores_neg['threshold']
+		maxInter_neg = scores_neg['maxInter']
+		len_neg = scores_neg['len_neg']
+	if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
+		print "Files not corresponding to the same parameters"
+		quit()
+	Interdistance_maxValue=maxInter_pos
+	norm=len_pos/len_neg
+	interdist_sum = []
+	interdist_sum_N = []
+	rate = []
+	if negative_sets :
+		for a,b,c,d,e,f in zip(InterDR,InterER,InterIR,InterDR_N,InterER_N,InterIR_N) :
+			interdist_sum.append(sum(a) + sum(b) + sum(c))
+			interdist_sum_N.append(sum(d) + sum(e) + sum(f))
+			rate.append([divide(sum(a), sum(d))/norm, divide(sum(b) , sum(e))/norm, divide(sum(c) , sum(f))/norm])
+
+
+
+	relative_DR = []
+	relative_ER = []
+	relative_IR = []
+	relative_DR_neg = []
+	relative_ER_neg = []
+	relative_IR_neg = []
+	if negative_sets :
+		for a,b,c,d,e in zip(threshold,InterDR,interdist_sum,InterDR_N,interdist_sum_N) :
+			relative_DR.append( [divide(x , float(c)) for x in b] )
+			if len(negative_sets) > 0 :
+				relative_DR_neg.append( [divide(x , float(e)) for x in d] )
+		for a,b,c,d,e in zip(threshold,InterER,interdist_sum,InterER_N,interdist_sum_N) :
+			relative_ER.append( [divide(x , float(c)) for x in b] )
+			if len(negative_sets) > 0 :
+				relative_ER_neg.append( [divide(x , float(e)) for x in d] )
+		for a,b,c,d,e in zip(threshold,InterIR,interdist_sum,InterIR_N,interdist_sum_N) :
+			relative_IR.append( [divide(x , float(c)) for x in b] )
+			if len(negative_sets) > 0 :
+				relative_IR_neg.append( [divide(x , float(e)) for x in d] )
+
+	command = sys.argv			
+	if histo == True and negative_sets :
+		negative_sets_histo(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command)
+		
+	if histo == False and points == False and negative_sets :
+		negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command)
+	
+	if points == True and negative_sets :
+		 negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output)
+	quit()
+
+
 ####################################################################################
+
 
 ################### To capture file names where there are unbound sequences ###################
 
@@ -139,7 +210,7 @@ with open(FastaFile,"r") as f1:
 			line=line.split(":")
 			len_pos+=float(line[2])-float(line[1])
                         sequence_number+=1
-len_pos=len_pos/sequence_number
+len_pos=len_pos
 print(sequence_number)
 sequence_number_pos=sequence_number
 
@@ -173,7 +244,7 @@ if negative_sets :
 					line=line.split(":")
 					len_neg+=float(line[2])-float(line[1])
 					sequence_number+=1
-		len_neg=len_neg/sequence_number
+		len_neg=len_neg
 		print(sequence_number)
                 
 		sequence_number_neg=sequence_number              
@@ -191,10 +262,44 @@ if negative_sets :
 			InterER_N[d] = [x / float(len(negative_sets)) for x in b]
 			InterIR_N[d] = [x / float(len(negative_sets)) for x in c]
 		
-
-norm=(float(sequence_number_pos)*len_pos)/(float(sequence_number_neg)*len_neg)
+len_pos=float(len_pos)
+len_neg=float(len_neg)
+norm=len_pos/len_neg
 
 print norm 
+
+
+if save :
+	basename_pos_file=os.path.basename(os.path.splitext(positive)[0])
+	basename_neg_file=os.path.basename(os.path.splitext(negative_sets[0])[0])
+	list_th=''
+	for elt in threshold:
+		list_th=list_th+'_'+str(elt)
+	if not os.path.exists(output_directory+'/'+basename_pos_file+list_th+'_pos.pkl'):
+		with open(output_directory+'/'+basename_pos_file+list_th+'_pos.pkl','wb') as f1:
+			scores_pos={
+				"len_pos": len_pos,
+				"DR": InterDR,
+				"ER": InterER,
+				"IR": InterIR,
+				"threshold": threshold,
+				"maxInter": Interdistance_maxValue,
+				}
+			pickler_neg=pickle.Pickler(f1)
+			pickler_neg.dump(scores_pos)
+	if not os.path.exists(output_directory+'/'+basename_neg_file+list_th+'_neg.pkl'):
+		with open(output_directory+'/'+basename_neg_file+list_th+'_neg.pkl','wb') as f1:
+			scores_neg={
+				"len_neg": len_neg,
+				"DR_N": InterDR_N,
+				"ER_N": InterER_N,
+				"IR_N": InterIR_N,
+				"threshold": threshold,
+				"maxInter": Interdistance_maxValue,
+				}
+			pickler_neg=pickle.Pickler(f1)
+			pickler_neg.dump(scores_neg)
+	quit()
 
 
 interdist_sum = []
@@ -215,6 +320,7 @@ relative_DR_neg = []
 relative_ER_neg = []
 relative_IR_neg = []
 
+
 if negative_sets :
 	for a,b,c,d,e in zip(threshold,InterDR,interdist_sum,InterDR_N,interdist_sum_N) :
 		relative_DR.append( [divide(x , float(c)) for x in b] )
@@ -231,7 +337,10 @@ if negative_sets :
 #print("relative_DR : ",relative_DR)
 #print("relative_ER : ",relative_ER)
 #print("relative_IR : ",relative_IR)
+
+
 command = sys.argv			
+			
 			
 if histo == True and negative_sets :
 	negative_sets_histo(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command)
