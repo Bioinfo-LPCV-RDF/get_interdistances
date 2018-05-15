@@ -123,6 +123,7 @@ if save :
 if load:
 	norm=list()
 	if len(positive)==1:
+		comp=False
 		positive=positive[0]
 		with open(positive,'rb') as f1:
 			pos_pickler=pickle.Unpickler(f1)
@@ -142,12 +143,12 @@ if load:
 			threshold_neg = scores_neg['threshold']
 			maxInter_neg = scores_neg['maxInter']
 			len_neg = scores_neg['len_neg']
-		norm.append(len_pos/len_neg)
+		norm=[len_pos/len_neg]*len(threshold)
 		if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
 			print("load=True, Files not corresponding to the same parameters, exiting")
 			quit()
 	else:
-		th=threshold[0]
+		comp=True
 		list_pos=list()
 		InterDR = []
 		InterER = []
@@ -181,6 +182,8 @@ if load:
 				if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
 					print("load=True, Files not corresponding to the same parameters, exiting")
 					quit()
+		threshold=legend
+
 	Interdistance_maxValue=maxInter_pos
 	interdist_sum = []
 	interdist_sum_N = []
@@ -191,7 +194,7 @@ if load:
 		interdist_sum_N.append(sum(d) + sum(e) + sum(f))
 		rate.append([divide(sum(a), sum(d))/g, divide(sum(b) , sum(e))/g, divide(sum(c) , sum(f))/g])
 
-	threshold=legend
+
 	relative_DR = []
 	relative_ER = []
 	relative_IR = []
@@ -214,7 +217,7 @@ if load:
 	command = sys.argv			
 
 	if points == True and negative_sets :
-		 negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load)
+		 negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,comp)
 	quit()
 
 
@@ -238,6 +241,8 @@ Mdata = num.findall(matrix)
 #print("list(reversed(Mdata)) : ",list(reversed(Mdata)))
 matScore, lenMotif = get_score_matrix(Mdata,matrixType,pseudoCount)
 
+
+
 # The following line allows to produce the reversed matrix
 '''if we take the example given before : A T G C
 			Position 1:      0.4444  0.155  0.654   0.645
@@ -260,7 +265,7 @@ if not pos_flag:
 				line=line.strip()
 				line=line.replace("-",":")
 				line=line.split(":")
-				len_pos+=float(line[2])-float(line[1])
+				len_pos+=float(line[2]) - float(line[1]) + 1 - lenMotif
 				sequence_number+=1
 	len_pos=float(len_pos)
 	print(sequence_number)
@@ -295,7 +300,7 @@ if not neg_flag:
 						line=line.strip()
 						line=line.replace("-",":")
 						line=line.split(":")
-						len_neg+=float(line[2])-float(line[1])
+						len_neg+=float(line[2])-float(line[1]) + 1 - lenMotif
 						sequence_number+=1
 			len_neg=float(len_neg)
 			print(sequence_number)
