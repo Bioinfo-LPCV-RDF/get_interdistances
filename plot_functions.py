@@ -152,7 +152,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	plt.legend()
 	plt.show()
 	
-def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output) :	
+def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load=False) :	
 	fig = plt.figure(1,figsize= (18,10))
 	fig.suptitle(command, fontsize = 11, fontweight='bold')
 	
@@ -163,9 +163,13 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 	ax0.set_xlabel("", size = 16)
 	indexes1 = np.arange(3)
 	plt.xticks(indexes1 , ('DR', 'ER', 'IR'))
-	points = ['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black']
 	turn = 0
-	ax0.set_color_cycle(['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        if not load:
+            points = ['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black']
+            ax0.set_color_cycle(['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            points = ['lightsalmon', 'steelblue', 'r', 'lightseagreen', 'maroon', 'darkblue']
+            ax0.set_color_cycle(['lightsalmon', 'steelblue', 'r', 'lightseagreen', 'maroon', 'darkblue'])
 	maxi = []
 	for a in rate :
 		maxi.append(max(a))
@@ -188,7 +192,10 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		maxi.append(max(map(divide, a, b)))
 	m = max(maxi)		
 	ax1 = plt.subplot(gs[1])
-	ax1.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        if not load:
+            ax1.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            ax1.set_color_cycle(['lightsalmon', 'steelblue', 'r', 'lightseagreen', 'maroon', 'darkblue'])
 	for a,b in zip(relative_DR,relative_DR_neg) :
 		indexes1 = np.arange(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(2,2,2)
@@ -209,13 +216,21 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		turn = turn + 1
 	turn = 0
 	ax2 = plt.subplot(gs[2])
-	ax2.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
-	for a, b,c in zip(relative_ER,relative_ER_neg,threshold)  :	
+        if not load:
+            ax2.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            ax2.set_color_cycle(['lightsalmon', 'steelblue', 'r', 'lightseagreen', 'maroon', 'darkblue'])
+
+	for a, b,c in zip(relative_ER,relative_ER_neg,threshold)  :	    
 		indexes1 = range(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(1,7,4)
 		ax2.set_xlabel("base pairs between TGTCGG in ERs", size = 16)
 		ax2.axis([-1, Interdistance_maxValue + 1, 0, m + 0.5])
-		plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', label = r"threshold : " + str(c), alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
+                try :
+                    int(c)
+                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', label = r"threshold : " + str(c), alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
+                except:
+                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', label = str(c), alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
 		#plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
 		#plt.figlegend( d,('lightsalmon', 'tomato', 'r'), loc = 'lower center', ncol=5, labelspacing=0. )
 		plt.plot(indexes1, map(divide, a, b), lw = 2)
@@ -225,13 +240,16 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		#plt.title('ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
 		#plt.text(0, 3.5, "ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$")
 		l = plt.axhline(y = 1)
-		plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = "lower center", ncol = 2, mode = "expand", borderaxespad = 0.)
+		plt.legend(bbox_to_anchor = (0., 1.05, 1., .102), loc = "lower center", ncol = 2, mode = "expand", borderaxespad = -2)
 		turn = turn + 1
 		for i in range (0,Interdistance_maxValue + 1) :
 			plt.axvline(x = i, linewidth=0.1)
 	turn = 0
 	ax3 = plt.subplot(gs[3])
-	ax3.set_color_cycle(['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        if not load:
+            ax3.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            ax3.set_color_cycle(['lightsalmon', 'steelblue', 'r', 'lightseagreen', 'maroon', 'darkblue'])
 	for a,b in zip(relative_IR,relative_IR_neg) :
 		indexes1 = range(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(1,7,6)
@@ -249,5 +267,4 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 			plt.axvline(x = i, linewidth=0.1)
 	plt.subplots_adjust(top=0.85)
 	fig.savefig(output)
-
 

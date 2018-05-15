@@ -32,8 +32,9 @@ import pickle
 parser = argparse.ArgumentParser()                                               
 
 
-parser.add_argument("--positive", "-pos", type = str)
+parser.add_argument("--positive", "-pos", nargs='*')
 parser.add_argument("--negative_sets", "-neg", nargs='*')
+parser.add_argument("--legend", "-leg", nargs='*')
 parser.add_argument("--matrix_type", "-mt", type=str, default="freq")
 parser.add_argument("--threshold", "-th",nargs='+',type = int, default= [-8, -9, -10])
 parser.add_argument("--Interdistance_maxValue", "-maxInter", type = int, default= 20)
@@ -57,6 +58,7 @@ args = parser.parse_args()
 #python get_interdistances.py -fac "ARF5" -pc 0.001 -maxInter 20 -sequence_number 26659 -th -9 -10 -11 -12 -13 -neg ../sequences/ARF5_neg1.fas ../sequences/ARF5_neg2.fas -points True
 #python get_interdistances.py -fac "ARF2" -pc 0.001 -maxInter 30 -sequence_number 26659 -th -6 -7 -8 -9 -10 -11 -points True -neg ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_1.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_2.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_3.fas ../../Adrien_Arnaud_Raquel_Francois/Arnaud/fasta/ARF2_neg_4.fas
 negative_sets = args.negative_sets
+legend = args.legend
 save = args.save
 load = args.load
 threshold = args.threshold
@@ -65,6 +67,11 @@ histo = args.histo
 points = args.points
 sum_threshold = args.sum_threshold
 positive=args.positive
+if len(positive)!=1 and load is False:
+	print("list of positive sets and load = False non compatible, exiting")
+	quit()
+if not load:
+	positive=positive[0]
 matrixArg=args.matrix
 matrixType=args.matrix_type
 pseudoCount = args.pseudoCount
@@ -75,7 +82,8 @@ offset_right = args.offset_right
 offset_left = args.offset_left
 output= output_directory +"/"+ figure_name
 
-
+neg_flag=False # can be true if save option called
+pos_flag=False # can be true if save option called
 
 if histo == True and len(threshold) > 1 : 
 	print("Impossible to display an histogram with several thresholds, you have to change a parameter.")
@@ -91,86 +99,128 @@ separation between numbers can be spaces, tabulation, comas...
                                                                   position 2:           0.645; 0.654    0.155 |||||| 0.4444
                                                                                         ...
                                                                         '''
+
+################################# If save == True  #################################
+if save and load:
+	print("Save = load = True, non compatible options, exiting")
+	quit()
+
+if save :
+	basename_pos_file=os.path.basename(os.path.splitext(positive)[0])
+	basename_neg_file=os.path.basename(os.path.splitext(negative_sets[0])[0])
+	list_th=''
+	for elt in threshold:
+		list_th=list_th+'_'+str(elt)
+	if os.path.exists(output_directory+'/'+basename_neg_file+list_th+'_neg.pkl'):
+		neg_flag=True
+	if os.path.exists(output_directory+'/'+basename_pos_file+list_th+'_pos.pkl'):
+		pos_flag=True
+	if pos_flag and neg_flag:
+		print("Save = True, The required files already exist, exiting")
+		quit()
 ################################# If load == True  #################################
 
-if load:	
-	with open(positive,'rb') as f1:
-		pos_pickler=pickle.Unpickler(f1)
-		scores_pos=pos_pickler.load()
-		InterDR = scores_pos['DR']
-		InterER = scores_pos['ER']
-		InterIR = scores_pos['IR']
-		threshold_pos = scores_pos['threshold']
-		maxInter_pos = scores_pos['maxInter']
-		len_pos = scores_pos['len_pos']
-	with open(negative_sets[0],'rb') as f1:
-		neg_pickler=pickle.Unpickler(f1)
-		scores_neg=neg_pickler.load()
-		InterDR_N = scores_neg['DR_N']
-		InterER_N = scores_neg['ER_N']
-		InterIR_N = scores_neg['IR_N']
-		threshold_neg = scores_neg['threshold']
-		maxInter_neg = scores_neg['maxInter']
-		len_neg = scores_neg['len_neg']
-	if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
-		print "Files not corresponding to the same parameters"
-		quit()
+if load:
+	norm=list()
+	if len(positive)==1:
+		positive=positive[0]
+		with open(positive,'rb') as f1:
+			pos_pickler=pickle.Unpickler(f1)
+			scores_pos=pos_pickler.load()
+			InterDR = scores_pos['DR']
+			InterER = scores_pos['ER']
+			InterIR = scores_pos['IR']
+			threshold_pos = scores_pos['threshold']
+			maxInter_pos = scores_pos['maxInter']
+			len_pos = scores_pos['len_pos']
+		with open(negative_sets[0],'rb') as f1:
+			neg_pickler=pickle.Unpickler(f1)
+			scores_neg=neg_pickler.load()
+			InterDR_N = scores_neg['DR_N']
+			InterER_N = scores_neg['ER_N']
+			InterIR_N = scores_neg['IR_N']
+			threshold_neg = scores_neg['threshold']
+			maxInter_neg = scores_neg['maxInter']
+			len_neg = scores_neg['len_neg']
+		norm.append(len_pos/len_neg)
+		if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
+			print("load=True, Files not corresponding to the same parameters, exiting")
+			quit()
+	else:
+		th=threshold[0]
+		list_pos=list()
+		InterDR = []
+		InterER = []
+		InterIR = []
+		InterDR_N = []
+		InterER_N = []
+		InterIR_N = []
+		for th in threshold:
+			for elt in positive:
+				with open(elt,'rb') as f1:
+					pos_pickler=pickle.Unpickler(f1)
+					scores_pos=(pos_pickler.load())
+					threshold_pos=scores_pos['threshold']
+					which=threshold_pos.index(th)
+					InterDR.append(scores_pos['DR'][which])
+					InterER.append(scores_pos['ER'][which])
+					InterIR.append(scores_pos['IR'][which])
+					maxInter_pos = scores_pos['maxInter']
+					len_pos = scores_pos['len_pos']
+				with open(negative_sets[0],'rb') as f1:
+					neg_pickler=pickle.Unpickler(f1)
+					scores_neg=(neg_pickler.load())
+					threshold_neg=scores_neg['threshold']
+					which=threshold_neg.index(th)
+					InterDR_N.append(scores_neg['DR_N'][which])
+					InterER_N.append(scores_neg['ER_N'][which])
+					InterIR_N.append(scores_neg['IR_N'][which])
+					maxInter_neg = scores_neg['maxInter']
+					len_neg = scores_neg['len_neg']
+				norm.append(len_pos/len_neg)
+				if threshold_pos != threshold_neg or maxInter_neg != maxInter_pos:
+					print("load=True, Files not corresponding to the same parameters, exiting")
+					quit()
 	Interdistance_maxValue=maxInter_pos
-	norm=len_pos/len_neg
 	interdist_sum = []
 	interdist_sum_N = []
-	rate = []
-	if negative_sets :
-		for a,b,c,d,e,f in zip(InterDR,InterER,InterIR,InterDR_N,InterER_N,InterIR_N) :
-			interdist_sum.append(sum(a) + sum(b) + sum(c))
-			interdist_sum_N.append(sum(d) + sum(e) + sum(f))
-			rate.append([divide(sum(a), sum(d))/norm, divide(sum(b) , sum(e))/norm, divide(sum(c) , sum(f))/norm])
+	rate = []	
 
+	for a,b,c,d,e,f,g in zip(InterDR,InterER,InterIR,InterDR_N,InterER_N,InterIR_N,norm) :
+		interdist_sum.append(sum(a) + sum(b) + sum(c))
+		interdist_sum_N.append(sum(d) + sum(e) + sum(f))
+		rate.append([divide(sum(a), sum(d))/g, divide(sum(b) , sum(e))/g, divide(sum(c) , sum(f))/g])
 
-
+	threshold=legend
 	relative_DR = []
 	relative_ER = []
 	relative_IR = []
 	relative_DR_neg = []
 	relative_ER_neg = []
 	relative_IR_neg = []
-	if negative_sets :
-		for a,b,c,d,e in zip(threshold,InterDR,interdist_sum,InterDR_N,interdist_sum_N) :
-			relative_DR.append( [divide(x , float(c)) for x in b] )
-			if len(negative_sets) > 0 :
-				relative_DR_neg.append( [divide(x , float(e)) for x in d] )
-		for a,b,c,d,e in zip(threshold,InterER,interdist_sum,InterER_N,interdist_sum_N) :
-			relative_ER.append( [divide(x , float(c)) for x in b] )
-			if len(negative_sets) > 0 :
-				relative_ER_neg.append( [divide(x , float(e)) for x in d] )
-		for a,b,c,d,e in zip(threshold,InterIR,interdist_sum,InterIR_N,interdist_sum_N) :
-			relative_IR.append( [divide(x , float(c)) for x in b] )
-			if len(negative_sets) > 0 :
-				relative_IR_neg.append( [divide(x , float(e)) for x in d] )
 
+	for a,b,c,d,e in zip(threshold,InterDR,interdist_sum,InterDR_N,interdist_sum_N) :
+		relative_DR.append( [divide(x , float(c)) for x in b] )
+		if len(negative_sets) > 0 :
+			relative_DR_neg.append( [divide(x , float(e)) for x in d] )
+	for a,b,c,d,e in zip(threshold,InterER,interdist_sum,InterER_N,interdist_sum_N) :
+		relative_ER.append( [divide(x , float(c)) for x in b] )
+		if len(negative_sets) > 0 :
+			relative_ER_neg.append( [divide(x , float(e)) for x in d] )
+	for a,b,c,d,e in zip(threshold,InterIR,interdist_sum,InterIR_N,interdist_sum_N) :
+		relative_IR.append( [divide(x , float(c)) for x in b] )
+		if len(negative_sets) > 0 :
+			relative_IR_neg.append( [divide(x , float(e)) for x in d] )
 	command = sys.argv			
-	if histo == True and negative_sets :
-		negative_sets_histo(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command)
-		
-	if histo == False and points == False and negative_sets :
-		negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command)
-	
+
 	if points == True and negative_sets :
-		 negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output)
+		 negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load)
 	quit()
 
 
 ####################################################################################
 
 
-################### To capture file names where there are unbound sequences ###################
-
-#FastaFileNnumber = input("\nHow many fasta files with unbound sequences ? ")
-#d = {}
-#for i in range (1,FastaFileNnumber+1) :
-	#d["FastaFileN{0}".format(i)] = raw_input("\nName of fasta file with unbound sequences: ")
-
-###############################################################################################
 MatrixFile=matrixArg
 FastaFile=positive
 
@@ -200,81 +250,77 @@ matRev = list(reversed(matScore))
 
 	
 ########## get INTERDISTANCE VALUES for POSITIVE sets:
-len_pos=0
-sequence_number=0
-with open(FastaFile,"r") as f1:
-	for line in f1:
-		if line.find(">") != -1:	
-			line=line.strip()
-			line=line.replace("-",":")
-			line=line.split(":")
-			len_pos+=float(line[2])-float(line[1])
-                        sequence_number+=1
-len_pos=len_pos
-print(sequence_number)
-sequence_number_pos=sequence_number
+if not pos_flag:
+	len_pos=0
+	sequence_number=0
 
-InterDR, InterER, InterIR = get_interdist(matScore,matRev,FastaFile,threshold,offset_left,offset_right,Interdistance_maxValue,sum_threshold,lenMotif,dependencyFile,sequence_number)
+	with open(FastaFile,"r") as f1:
+		for line in f1:
+			if line.find(">") != -1:	
+				line=line.strip()
+				line=line.replace("-",":")
+				line=line.split(":")
+				len_pos+=float(line[2])-float(line[1])
+				sequence_number+=1
+	len_pos=float(len_pos)
+	print(sequence_number)
+	sequence_number_pos=sequence_number
 
-##### Create empty lists to store interdistances occurences for the negative set:
+	InterDR, InterER, InterIR = get_interdist(matScore,matRev,FastaFile,threshold,offset_left,offset_right,Interdistance_maxValue,sum_threshold,lenMotif,dependencyFile,sequence_number)
 
-InterDR_N = []
-InterER_N = []
-InterIR_N = []
-lenThr = 0
-listThr = []
-for a in threshold :
-	InterDR_N.append( [0] * (Interdistance_maxValue + 1) )
-	InterER_N.append( [0] * (Interdistance_maxValue + 1) )
-	InterIR_N.append( [0] * (Interdistance_maxValue + 1) )	
-	listThr.append(lenThr)
-	lenThr = lenThr + 1
+	##### Create empty lists to store interdistances occurences for the negative set:
+
+	InterDR_N = []
+	InterER_N = []
+	InterIR_N = []
+	lenThr = 0
+	listThr = []
+	for a in threshold :
+		InterDR_N.append( [0] * (Interdistance_maxValue + 1) )
+		InterER_N.append( [0] * (Interdistance_maxValue + 1) )
+		InterIR_N.append( [0] * (Interdistance_maxValue + 1) )	
+		listThr.append(lenThr)
+		lenThr = lenThr + 1
 
 
 ########## get INTERDISTANCE occurences for NEGATIVE sets			       
-len_neg=0
-if negative_sets :
-	for fastafileN in negative_sets :
-		sequence_number=0
-		with open(fastafileN,"r") as f1:
-			for line in f1:
-				if line.find(">") != -1:
-					line=line.strip()
-					line=line.replace("-",":")
-					line=line.split(":")
-					len_neg+=float(line[2])-float(line[1])
-					sequence_number+=1
-		len_neg=len_neg
-		print(sequence_number)
-                
-		sequence_number_neg=sequence_number              
+if not neg_flag:
+	len_neg=0
+	if negative_sets :
+		for fastafileN in negative_sets :
+			sequence_number=0
+			with open(fastafileN,"r") as f1:
+				for line in f1:
+					if line.find(">") != -1:
+						line=line.strip()
+						line=line.replace("-",":")
+						line=line.split(":")
+						len_neg+=float(line[2])-float(line[1])
+						sequence_number+=1
+			len_neg=float(len_neg)
+			print(sequence_number)
 
-		InterDR_N_temp, InterER_N_temp, InterIR_N_temp = get_interdist(matScore,matRev,fastafileN,threshold,offset_left,offset_right,Interdistance_maxValue,sum_threshold,lenMotif,dependencyFile,sequence_number)
-		# addition of the occurences of every negative sets
-		for a,b,c,d in zip(InterDR_N_temp,InterER_N_temp,InterIR_N_temp,listThr) :
-			InterDR_N[d] = [x + y for x, y in zip(InterDR_N[d], a)]
-			InterER_N[d] = [x + y for x, y in zip(InterER_N[d], b)]
-			InterIR_N[d] = [x + y for x, y in zip(InterIR_N[d], c)]
-	# divide by the number of negative sets in order to have a mean
-	if len(negative_sets) > 0 :
-		for a,b,c,d in zip(InterDR_N,InterER_N,InterIR_N,listThr) :
-			InterDR_N[d] = [x / float(len(negative_sets)) for x in a]
-			InterER_N[d] = [x / float(len(negative_sets)) for x in b]
-			InterIR_N[d] = [x / float(len(negative_sets)) for x in c]
-		
-len_pos=float(len_pos)
-len_neg=float(len_neg)
-norm=len_pos/len_neg
+			sequence_number_neg=sequence_number              
 
-print norm 
+			InterDR_N_temp, InterER_N_temp, InterIR_N_temp = get_interdist(matScore,matRev,fastafileN,threshold,offset_left,offset_right,Interdistance_maxValue,sum_threshold,lenMotif,dependencyFile,sequence_number)
+			# addition of the occurences of every negative sets
+			for a,b,c,d in zip(InterDR_N_temp,InterER_N_temp,InterIR_N_temp,listThr) :
+				InterDR_N[d] = [x + y for x, y in zip(InterDR_N[d], a)]
+				InterER_N[d] = [x + y for x, y in zip(InterER_N[d], b)]
+				InterIR_N[d] = [x + y for x, y in zip(InterIR_N[d], c)]
+		# divide by the number of negative sets in order to have a mean
+		if len(negative_sets) > 0 :
+			for a,b,c,d in zip(InterDR_N,InterER_N,InterIR_N,listThr) :
+				InterDR_N[d] = [x / float(len(negative_sets)) for x in a]
+				InterER_N[d] = [x / float(len(negative_sets)) for x in b]
+				InterIR_N[d] = [x / float(len(negative_sets)) for x in c]
+
+
+
+
 
 
 if save :
-	basename_pos_file=os.path.basename(os.path.splitext(positive)[0])
-	basename_neg_file=os.path.basename(os.path.splitext(negative_sets[0])[0])
-	list_th=''
-	for elt in threshold:
-		list_th=list_th+'_'+str(elt)
 	if not os.path.exists(output_directory+'/'+basename_pos_file+list_th+'_pos.pkl'):
 		with open(output_directory+'/'+basename_pos_file+list_th+'_pos.pkl','wb') as f1:
 			scores_pos={
@@ -301,6 +347,11 @@ if save :
 			pickler_neg.dump(scores_neg)
 	quit()
 
+
+
+norm=len_pos/len_neg
+
+print norm 
 
 interdist_sum = []
 interdist_sum_N = []
