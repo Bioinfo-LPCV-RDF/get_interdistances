@@ -302,7 +302,7 @@ if not neg_flag:
 						line=line.split(":")
 						len_neg+=float(line[2])-float(line[1]) + 1 - lenMotif
 						sequence_number+=1
-			len_neg=float(len_neg)/len(negative_sets)
+			len_neg=float(len_neg)
 			print(sequence_number)
 
 			sequence_number_neg=sequence_number              
@@ -316,9 +316,9 @@ if not neg_flag:
 		# divide by the number of negative sets in order to have a mean
 		if len(negative_sets) > 0 :
 			for a,b,c,d in zip(InterDR_N,InterER_N,InterIR_N,listThr) :
-				InterDR_N[d] = [x / float(len(negative_sets)) for x in a]
-				InterER_N[d] = [x / float(len(negative_sets)) for x in b]
-				InterIR_N[d] = [x / float(len(negative_sets)) for x in c]
+				InterDR_N[d] = [x / float(1) for x in a]
+				InterER_N[d] = [x / float(1) for x in b]
+				InterIR_N[d] = [x / float(1) for x in c]
 
 
 
@@ -356,7 +356,7 @@ if save :
 
 norm=len_pos/len_neg
 
-print norm 
+print "norm = " + str(norm)
 
 interdist_sum = []
 interdist_sum_N = []
