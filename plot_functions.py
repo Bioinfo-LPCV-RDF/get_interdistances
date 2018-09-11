@@ -6,7 +6,7 @@ import numpy as np
 import sys
 from matplotlib import gridspec
 from matplotlib.font_manager import FontProperties
-
+import math
 
 def divide(a, b):
     if b == 0:
@@ -202,7 +202,11 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		maxi.append(max(map(divide, a, b)))
 	for a,b in zip(relative_IR,relative_IR_neg) :
 		maxi.append(max(map(divide, a, b)))
+	for n,i in enumerate(maxi): # add by JL, in case too many "nan" in the maxi list
+		if math.isnan(i):
+			maxi[n] = 0.0
 	m = max(maxi)		
+	print(m)
 	ax1 = plt.subplot(gs[1])
         ax1.spines["top"].set_linewidth(0.3)
         ax1.spines["bottom"].set_linewidth(0.3)

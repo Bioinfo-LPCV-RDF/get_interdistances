@@ -302,7 +302,7 @@ if not neg_flag:
 						line=line.split(":")
 						len_neg+=float(line[2])-float(line[1]) + 1 - lenMotif
 						sequence_number+=1
-			len_neg=float(len_neg)
+			len_neg=float(len_neg)/len(negative_sets)
 			print(sequence_number)
 
 			sequence_number_neg=sequence_number              
