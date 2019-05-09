@@ -19,16 +19,16 @@ $ inkscape -z -e figure_name.png -w 1800 -h 1024 figure_name.svg
 
 The pfm (option -pfm) has to be in the following format :
 
-68.0	182.0	65.0	289.0
-98.0	49.0	26.0	428.0
-1.0	1.0	44.0	557.0
-1.0	1.0	601.0	1.0
-1.0	1.0	1.0	601.0
-1.0	596.0	1.0	5.0
-2.0	4.0	463.0	134.0
-53.0	25.0	489.0	35.0
-131.0	173.0	140.0	158.0
-239.0	62.0	67.0	236.0
+68.0	182.0	65.0	289.0  
+98.0	49.0	26.0	428.0  
+1.0	1.0	44.0	557.0  
+1.0	1.0	601.0	1.0  
+1.0	1.0	1.0	601.0  
+1.0	596.0	1.0	5.0  
+2.0	4.0	463.0	134.0  
+53.0	25.0	489.0	35.0  
+131.0	173.0	140.0	158.0  
+239.0	62.0	67.0	236.0  
 
 The matrix has NO HEADER. The columns respectively stand for A, C, G, T frequencies. The decimal part ".0" is important for the frequencies to be interpreted as floats (This bug will soon be fixed). Each frequency must be different from 0.
 
