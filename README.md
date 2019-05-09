@@ -7,6 +7,10 @@ Numpy : 1.8.2
 
 Biopython : 1.70
 
+######################################################
+Authors: Arnaud Stigliani, Adrien Bessy, Jeremy Lucas
+######################################################
+
 # How to use it 
 Here is the command line with the mandatory arguments : 
 
@@ -46,3 +50,9 @@ You can give as much control sets as you want. A nice way to generate control se
 https://github.com/wassermanlab/BiasAway
 R. Worsley-Hunt et al., Improving detection and analysis of transcription factor binding sites within ChIP-Seq
 
+###############################################################################
+Reference:
+
+This tool has been described in 
+STIGLIANI, Arnaud, MARTIN-AREVALILLO, Raquel, LUCAS, Jeremy, et al. Capturing auxin response factors syntax using DNA binding models. Molecular plant, 2018.
+Please cite this publication when using this program.
