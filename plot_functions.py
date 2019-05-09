@@ -152,7 +152,7 @@ def negative_sets_curve(Interdistance_maxValue,relative_DR,relative_DR_neg,relat
 	plt.legend()
 	plt.show()
 	
-def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load=False) :	
+def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load=False,log=False) :	
         matplotlib.rcParams['font.sans-serif']=['Arial']
         matplotlib.rcParams['font.family']="sans-serif"
         SMALL_SIZE=5.4
@@ -182,16 +182,23 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
             points = ['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black']
             ax0.set_color_cycle(['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
         else:
+            print "salut"
             points = ['lightsalmon', 'skyblue', 'r', 'royalblue', 'maroon', 'darkblue']
             ax0.set_color_cycle(['lightsalmon', 'skyblue', 'r', 'royalblue', 'maroon', 'darkblue'])
 	maxi = []
 	for a in rate :
 		maxi.append(max(a))
 	m = max(maxi)
-	ax0.axis([-1, 3 , 0, m + 0.5])
+        if log == False:
+            ax0.axis([-1, 3 , 0, m + 0.5])
+        else :
+            ax0.axis([-1, 3 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
 	for a in rate :
-		plt.plot(indexes1, a, points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
-		turn = turn + 1
+            if log==False :
+                plt.plot(indexes1, a, points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+            else :
+                plt.plot(indexes1, np.log10(a), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+	    turn = turn + 1
 	ax0.set_ylabel("Absolute enrichment", fontsize = 5.4)
 	turn = 0
 	#plt.text(-3.6, -0.2, command)	
@@ -222,15 +229,24 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		indexes1 = np.arange(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(2,2,2)
 		ax1.set_xlabel("bp between DRs", fontsize = 5.4)
-		ax1.axis([-1, Interdistance_maxValue + 1, 0, m + 0.5])
+                if log == False:
+                    ax1.axis([-1, Interdistance_maxValue + 1 , 0, m + 0.5])
+                else :
+                    ax1.axis([-1, Interdistance_maxValue + 1 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
 		#plt.Circle((indexes1, map(divide, a, b)), color = 'g', radius=50, fill=True)
-		plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
-		#plt.title('DRn frequence = DRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
+                if log==False :
+                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+                else :
+                    plt.plot(indexes1, np.log10(map(divide, a, b)), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+		    #plt.title('DRn frequence = DRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
 		
 		# t = plt.text(0.5,0.5, 'DRn frequence = DRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$',horizontalalignment='center', style='italic',verticalalignment='center', transform = ax1.transAxes)
 		# t.set_bbox(dict(facecolor='white', alpha=0.1, edgecolor='black'))
 		#plt.text(2, 3.5, "DRn frequence = DRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$")
-		l = plt.axhline(y = 1,linewidth=0.1)
+                if log == False :
+                    l = plt.axhline(y = 1,linewidth=0.1)
+                else :
+                    l = plt.axhline(y = 0,linewidth=0.1)
 		for i in range (0,Interdistance_maxValue + 1) :
                     if i%5 == 0 :
 			plt.axvline(x = i, linewidth=0.3)
@@ -252,10 +268,16 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		indexes1 = range(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(1,7,4)
 		ax2.set_xlabel("bp between ERs", fontsize = 5.4)
-		ax2.axis([-1, Interdistance_maxValue + 1, 0, m + 0.5])
+                if log == False:
+                    ax2.axis([-1, Interdistance_maxValue + 1 , 0, m + 0.5])
+                else :
+                    ax2.axis([-1, Interdistance_maxValue + 1 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
                 try :
                     int(c)
-                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, label = r"threshold : " + str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
+                    if log==False :
+                        plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, label = r"threshold : " + str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
+                    else :
+                        plt.plot(indexes1, np.log10(map(divide, a, b)), points[turn], marker='o',linewidth=0.5, label = r"threshold : " + str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
                 except:
                     plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, label = str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
 		#plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
@@ -266,7 +288,10 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		# t.set_bbox(dict(facecolor='white', alpha=0.1, edgecolor='black'))
 		#plt.title('ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
 		#plt.text(0, 3.5, "ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$")
-		l = plt.axhline(y = 1,linewidth=0.1)
+                if log == False :
+                    l = plt.axhline(y = 1,linewidth=0.1)
+                else :
+                    l = plt.axhline(y = 0,linewidth=0.1)                 
 		plt.legend(bbox_to_anchor=(0.5,0.5), ncol=(len(threshold)//2), mode = "expand", fontsize=5.4 ,borderaxespad = -15)
 		turn = turn + 1
 		for i in range (0,Interdistance_maxValue + 1) :
@@ -287,16 +312,137 @@ def negative_sets_points(Interdistance_maxValue,relative_DR,relative_DR_neg,rela
 		indexes1 = range(Interdistance_maxValue + 1)
 		#ax1 = fig.add_subplot(1,7,6)
 		ax3.set_xlabel("bp between IRs", fontsize = 5.4)
-		ax3.axis([-1, Interdistance_maxValue + 1, 0, m + 0.5])
-		plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
-
+                if log == False:
+                    ax3.axis([-1, Interdistance_maxValue + 1 , 0, m + 0.5])
+                else :
+                    ax3.axis([-1, Interdistance_maxValue + 1 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
+                if log==False :
+                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+                else :
+                    plt.plot(indexes1, np.log10(map(divide, a, b)), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
 		# ax3.set_ylabel("IRn+ frequence / IRn- frequence", size = 16)
 		# t = plt.text(0.5,0.5, 'IRn frequence = IRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', horizontalalignment='center', style='italic',verticalalignment='center', transform = ax3.transAxes)
 		# t.set_bbox(dict(facecolor='white', alpha=0.1, edgecolor='black'))
 		#plt.title('IRn frequence = IRn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
-		l = plt.axhline(y = 1,linewidth=0.1)
+                if log == False :
+                    l = plt.axhline(y = 1,linewidth=0.1)
+                else :
+                    l = plt.axhline(y = 0,linewidth=0.1)
 		turn = turn + 1
 		for i in range (0,Interdistance_maxValue + 1):
+                    if i%5 == 0 :
+			plt.axvline(x = i, linewidth=0.3)
+	plt.subplots_adjust(top=0.85)
+#        plt.tight_layout(fig)
+	fig.savefig(output)
+
+def negative_sets_points_ER(Interdistance_maxValue,relative_DR,relative_DR_neg,relative_ER,relative_ER_neg,relative_IR,relative_IR_neg,threshold,rate,command,output,load=False,log=False,no_threshold_panel=False) :	
+        matplotlib.rcParams['font.sans-serif']=['Arial']
+        matplotlib.rcParams['font.family']="sans-serif"
+        SMALL_SIZE=5.4
+        plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+        plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+        plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
+        plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+        plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+        plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+        plt.rc('figure', titlesize=SMALL_SIZE)  # fontsize of the figure title
+	fig = plt.figure(1,figsize= (3.54,2.2))
+	# fig.suptitle(command, fontsize = 11, fontweight='bold')
+	gs = gridspec.GridSpec(1, 2,wspace = 0.25, width_ratios=[1, 6 ],left=0.1,right=0.97) 
+	indexes1 = range(Interdistance_maxValue + 1)
+	width = 1
+	ax0 = plt.subplot(gs[0])
+        ax0.spines["top"].set_linewidth(0.3)
+        ax0.spines["bottom"].set_linewidth(0.3)
+        ax0.spines["right"].set_linewidth(0.3)
+        ax0.spines["left"].set_linewidth(0.3)
+        ax0.tick_params(length=1.5,width=0.5,pad=1.5)
+	ax0.set_xlabel("", size = 16)
+	indexes1 = np.arange(3)
+	plt.xticks(indexes1 , ('DR', 'ER', 'IR'))
+	turn = 0
+        if not load:
+            points = ['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black']
+            ax0.set_color_cycle(['lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            points = ['lightsalmon', 'skyblue', 'r', 'royalblue', 'maroon', 'darkblue']
+            ax0.set_color_cycle(['lightsalmon', 'skyblue', 'r', 'royalblue', 'maroon', 'darkblue'])
+	maxi = []
+	for a in rate :
+		maxi.append(max(a))
+	m = max(maxi)
+        if log == False:
+            ax0.axis([-1, 3 , 0, m + 0.5])
+        else :
+            ax0.axis([-1, 3 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
+	for a in rate :
+            if log==False :
+                plt.plot(indexes1, a, points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+            else :
+                plt.plot(indexes1, np.log10(a), points[turn], marker='o',linewidth=0.5, alpha = 0.70, markersize = 2, markeredgewidth = 0.0)
+	    turn = turn + 1
+	ax0.set_ylabel("Absolute enrichment", fontsize = 5.4)
+	turn = 0
+	#plt.text(-3.6, -0.2, command)	
+	maxi = []
+	for a,b in zip(relative_DR,relative_DR_neg) :
+		maxi.append(max(map(divide, a, b)))
+	for a,b in zip(relative_ER,relative_ER_neg) :
+		maxi.append(max(map(divide, a, b)))
+	for a,b in zip(relative_IR,relative_IR_neg) :
+		maxi.append(max(map(divide, a, b)))
+	for n,i in enumerate(maxi): # add by JL, in case too many "nan" in the maxi list
+		if math.isnan(i):
+			maxi[n] = 0.0
+	m = max(maxi)		
+	print(m)
+	turn = 0
+	ax2 = plt.subplot(gs[1])
+        ax2.spines["top"].set_linewidth(0.3)
+        ax2.spines["bottom"].set_linewidth(0.3)
+        ax2.spines["right"].set_linewidth(0.3)
+        ax2.spines["left"].set_linewidth(0.3)
+        ax2.tick_params(length=1.5,width=0.5,pad=1.5)        
+        ax2.set_ylabel("Normalized enrichment", fontsize = 5.4, labelpad=60)
+        if not load:
+            ax2.set_color_cycle([ 'lightsalmon', 'tomato', 'r', 'brown', 'maroon', 'black'])
+        else:
+            ax2.set_color_cycle(['lightsalmon', 'skyblue', 'r', 'royalblue', 'maroon', 'darkblue'])
+
+	for a, b,c in zip(relative_ER,relative_ER_neg,threshold)  :	    
+		indexes1 = range(Interdistance_maxValue + 1)
+		#ax1 = fig.add_subplot(1,7,4)
+		ax2.set_xlabel("bp between ERs", fontsize = 5.4)
+                if log == False:
+                    ax2.axis([-1, Interdistance_maxValue + 1 , 0, m + 0.5])
+                else :
+                    ax2.axis([-1, Interdistance_maxValue + 1 , -(np.log10(m) + 0.5), np.log10(m) + 0.5])
+                try :
+                    int(c)
+                    if log==False :
+                        plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, label = r"threshold : " + str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
+                    else :
+                        plt.plot(indexes1, np.log10(map(divide, a, b)), points[turn], marker='o',linewidth=0.5, label = r"threshold : " + str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
+                except:
+                    plt.plot(indexes1, map(divide, a, b), points[turn], marker='o',linewidth=0.5, label = str(c), alpha = 0.70, markersize = 2,markeredgewidth = 0.0)
+                    
+		#plt.plot(indexes1, map(divide, a, b), points[turn], marker='o', alpha = 0.70, markersize = 13,markeredgewidth = 0.0)
+		#plt.figlegend( d,('lightsalmon', 'tomato', 'r'), loc = 'lower center', ncol=5, labelspacing=0. )
+
+		# ax2.set_ylabel("ERn+ frequence / ERn- frequence", size = 16)
+		# t = plt.text(0.5,0.5, 'ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', horizontalalignment='center', style='italic',verticalalignment='center', transform = ax2.transAxes)
+		# t.set_bbox(dict(facecolor='white', alpha=0.1, edgecolor='black'))
+		#plt.title('ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$', fontsize = 14)
+		#plt.text(0, 3.5, "ERn frequence = ERn / $\sum_{i=0}^{i=20}$ DR$_i$ + ER$_i$ + IR$_i$")
+                if log == False :
+                    l = plt.axhline(y = 1,linewidth=0.1)
+                else :
+                    l = plt.axhline(y = 0,linewidth=0.1)
+                if no_threshold_panel == False:
+		    plt.legend(bbox_to_anchor=(0.5,0.5), ncol=(len(threshold)//2), mode = "expand", fontsize=5.4 ,borderaxespad = -15)
+		turn = turn + 1
+		for i in range (0,Interdistance_maxValue + 1) :
                     if i%5 == 0 :
 			plt.axvline(x = i, linewidth=0.3)
 	plt.subplots_adjust(top=0.85)

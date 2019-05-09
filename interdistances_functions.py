@@ -155,12 +155,14 @@ def interdistance_calcul(InterDR,InterER,InterIR,sum_threshold,good_score_positi
 							
 	return(InterDR,InterER,InterIR)
 	
-def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, Interdistance_maxValue, sum_threshold, lenMotif, dependencyFile, sequence_number):
+def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, Interdistance_maxValue, sum_threshold, lenMotif, dependencyFile, sequence_number,tffm_first_order):
+        if tffm_first_order != "":
+                (ER,IR,DR)=get_interdist_tffm(FastaFile, threshold, offset_left,offset_right, Interdistance_maxValue, lenMotif, sequence_number,tffm_first_order)
+                return(ER,IR,DR)
 	# This line allows to retrieve all the sequences from the fasta file
 	sequences = SeqIO.to_dict(SeqIO.parse(FastaFile, "fasta"))
-
+        from Bio.SeqRecord import SeqRecord
 	print "There are %s sequence(s) to analyze"%(sequence_number)
-	
 	# We will store in these lists all the occurences of each kind of interdistances between motifs found in all sequences.
 	DR = [] 
 	ER = [] 
@@ -185,7 +187,6 @@ def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, 
 		# This line allows to retrieve the DNA sequence
 		seq = sequences[s].seq
 		id=sequences[s].id
-
 		# We look at each sub-sequences of the whole sequence. Each sub-sequence has the same length that the matrix length.
 		for c in range(len(seq) - (lenMotif -1)):
 			strandPos = seq[c:c+lenMotif].upper()
@@ -196,29 +197,27 @@ def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, 
 			if test == 1:
 				score = "NA"
 			else :
-				n = 0
-				#These lines allows to calculate a score for one sub-sequence
-				scoreStrandPos = 0
-				scoreStrandNeg = 0 
-				while n<lenMotif:
-					if strandPos[n] == 'A':
-						scoreStrandPos = scoreStrandPos + matF[n*4]
-						scoreStrandNeg = scoreStrandNeg + matRev[n*4]
-					elif strandPos[n] == 'C':
-						scoreStrandPos = scoreStrandPos + matF[n*4+1]
-						scoreStrandNeg = scoreStrandNeg + matRev[n*4+1]
-					elif strandPos[n] == 'G':
-						scoreStrandPos = scoreStrandPos + matF[n*4+2]
-						scoreStrandNeg = scoreStrandNeg + matRev[n*4+2]
-					elif strandPos[n] == 'T':
-						scoreStrandPos = scoreStrandPos + matF[n*4+3]
-						scoreStrandNeg = scoreStrandNeg + matRev[n*4+3]			
-					n += 1
-		
-				if dependencyFile != "" : 			
-					scoreStrandPos, scoreStrandNeg = add_scores_associated_with_interdependent_positions(get_dependency_matrix(dependencyFile,num),scoreStrandPos,scoreStrandNeg,strandPos)
-
-		
+                                n = 0
+                                #These lines allows to calculate a score for one sub-sequence
+                                scoreStrandPos = 0
+                                scoreStrandNeg = 0 
+                                while n<lenMotif:
+                                        if strandPos[n] == 'A':
+                                                scoreStrandPos = scoreStrandPos + matF[n*4]
+                                                scoreStrandNeg = scoreStrandNeg + matRev[n*4]
+                                        elif strandPos[n] == 'C':
+                                                scoreStrandPos = scoreStrandPos + matF[n*4+1]
+                                                scoreStrandNeg = scoreStrandNeg + matRev[n*4+1]
+                                        elif strandPos[n] == 'G':
+                                                scoreStrandPos = scoreStrandPos + matF[n*4+2]
+                                                scoreStrandNeg = scoreStrandNeg + matRev[n*4+2]
+                                        elif strandPos[n] == 'T':
+                                                scoreStrandPos = scoreStrandPos + matF[n*4+3]
+                                                scoreStrandNeg = scoreStrandNeg + matRev[n*4+3]			
+                                        n += 1
+                                num = re.compile(r"([+-]?\d+[.,]\d+)")
+                                if dependencyFile != "" : 			
+                                        scoreStrandPos, scoreStrandNeg = add_scores_associated_with_interdependent_positions(get_dependency_matrix(dependencyFile,num),scoreStrandPos,scoreStrandNeg,strandPos)	
 				#These lines allows to retrieve the position and the strand where there is a predicted binding site. 
 				#You can change the threshold.
 				if sum_threshold == True :
@@ -234,7 +233,7 @@ def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, 
 						if scoreStrandNeg > b:
 							score_occurence = score_occurence + 1
 							a.append([c+1,"<",scoreStrandNeg])
-				
+
 		# Once we have stored all the positions, we calculate all the interdistances:
 		if sum_threshold == True :
 			for interDIR, interEVER, interINVER,sum_threshold in zip(DR,ER,IR,threshold) :
@@ -247,4 +246,37 @@ def get_interdist(matF, matRev, FastaFile, threshold, offset_left,offset_right, 
 		if nb == sequence_number : 
 			break
 	#print("score_occurence : ",score_occurence)
+	return(DR,ER,IR)
+
+
+
+def get_interdist_tffm(FastaFile, threshold, offset_left,offset_right, Interdistance_maxValue, lenMotif, sequence_number,tffm_first_order):
+	DR = [] 
+	ER = [] 
+	IR = []
+	all_score_positions=[]
+        hit_list=[]
+	for a in threshold :
+		DR.append([0] * (Interdistance_maxValue + 1) )
+		ER.append([0] * (Interdistance_maxValue + 1) )
+		IR.append([0] * (Interdistance_maxValue + 1) )
+	for hit in tffm_first_order.scan_sequences(FastaFile, only_best=False):
+                if hit:
+                        hit_list.append(str(hit).strip("\n").split("\t"))
+        for hit in hit_list:
+                if int(hit[1])==1:
+                        all_score_positions.append([])                        
+                if hit[3]=="+":
+                        all_score_positions[-1].append([int(hit[1]),">",float(hit[7])])
+                elif hit[3]=="-":
+                        all_score_positions[-1].append([int(hit[1]),"<",float(hit[7])])
+        for seq  in all_score_positions:
+                good_score_positions=[]
+                for a in threshold :
+                        good_score_positions.append([])
+                        for score in seq :
+                                if score[2] > a:
+                                        good_score_positions[-1].append(list(score))
+                for goodScores, interDIR, interEVER, interINVER in zip(good_score_positions,DR,ER,IR) :
+				InterDR,InterER,InterIR = interdistance_calcul(interDIR,interEVER,interINVER,threshold,goodScores,offset_left,offset_right,lenMotif,Interdistance_maxValue)
 	return(DR,ER,IR)
