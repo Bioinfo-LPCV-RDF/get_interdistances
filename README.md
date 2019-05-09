@@ -53,6 +53,6 @@ R. Worsley-Hunt et al., Improving detection and analysis of transcription factor
 ###############################################################################
 Reference:
 
-This tool has been described in 
+This tool has been described in  
 STIGLIANI, Arnaud, MARTIN-AREVALILLO, Raquel, LUCAS, Jeremy, et al. Capturing auxin response factors syntax using DNA binding models. Molecular plant, 2018.  
 Please cite this publication when using this program.
