@@ -16,7 +16,7 @@ Here is the command line with the mandatory arguments :
 
 $ python get_interdistances.py -pfm pfm.txt  -o output_directory -n figure_name.svg -maxInter window_size  -pos pos.fas -th threshold_1 threshold_2 threshold_n -neg neg_1.fas neg_2.fas neg_n.fas -points True  
 
-################################################################################
+################################################################################  
 Note : If you want to get a png, you can use the following command after the svg is generated:  
 $ inkscape -z -e figure_name.png -w 1800 -h 1024 figure_name.svg
 ################################################################################
@@ -50,7 +50,7 @@ You can give as much control sets as you want. A nice way to generate control se
 https://github.com/wassermanlab/BiasAway
 R. Worsley-Hunt et al., Improving detection and analysis of transcription factor binding sites within ChIP-Seq
 
-###############################################################################
+###############################################################################  
 Reference:
 
 This tool has been described in  
